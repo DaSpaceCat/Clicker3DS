@@ -18,8 +18,8 @@
 #include <string.h>
 
 //This include a header containing definitions of our image
-#include "buy_bgr.h"
-#include "text_bgr.h"
+#include "buy1_bgr.h"
+#include "buy2_bgr.h"
 
 int clickUpPrice = 15;
 int clicks = 0;
@@ -27,6 +27,8 @@ int CPC = 1;
 int CPS = 0;
 int cpsTimer = 0;
 int clickerprice = 50;
+
+int buyscreen = 1;
 
 int main(int argc, char **argv)
 {
@@ -68,8 +70,34 @@ int main(int argc, char **argv)
 	// Main loop
 	while (aptMainLoop())
 	{
+		//Scan all the inputs. This should be done once for each frame
+		hidScanInput();
+
+		//hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
+		u32 kDown = hidKeysDown();
+		//hidKeysHeld returns information about which buttons have are held down in this frame
+		u32 kHeld = hidKeysHeld();
+		//hidKeysUp returns information about which buttons have been just released
+		u32 kUp = hidKeysUp();
+
+		if (kDown & KEY_START) break; // break in order to return to hbmenu
+
+		if (kDown & KEY_ZR) {
+			buyscreen += 1;
+			if (buyscreen > 2) {
+				buyscreen = 1;
+			}
+		}
+		if (kDown & KEY_ZL) {
+			buyscreen -= 1;
+			if (buyscreen < 1) {
+				buyscreen = 2;
+			}
+		}
+
 		//copy our image into the bottom screen's frame buffer
-		memcpy(fb, buy_bgr, buy_bgr_size);
+		if (buyscreen == 1) memcpy(fb, buy1_bgr, buy1_bgr_size);
+		if (buyscreen == 2) memcpy(fb, buy2_bgr, buy2_bgr_size);
 
 		//attempted to display text on top of the store page, didn't work properly
 		//memcpy(fb, text_bgr, text_bgr_size);
@@ -82,19 +110,6 @@ int main(int argc, char **argv)
 		//update clicks
 		consoleSelect(&top);
 		printf("\x1b[1;1HClicks: %d\n", clicks);
-
-
-		//Scan all the inputs. This should be done once for each frame
-		hidScanInput();
-
-		//hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
-		u32 kDown = hidKeysDown();
-		//hidKeysHeld returns information about which buttons have are held down in this frame
-		u32 kHeld = hidKeysHeld();
-		//hidKeysUp returns information about which buttons have been just released
-		u32 kUp = hidKeysUp();
-
-		if (kDown & KEY_START) break; // break in order to return to hbmenu
 
 		//Read the touch screen coordinates and add them to a variable
 		touchPosition touch;
