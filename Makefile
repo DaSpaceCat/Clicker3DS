@@ -38,6 +38,9 @@ DATA		:=	data
 INCLUDES	:=	include
 GRAPHICS	:=	gfx
 GFXBUILD	:=	$(BUILD)
+APP_TITLE   := Clicker3DS
+APP_DESCRIPTION := A simple clicker game.
+APP_AUTHOR  := Renii
 #ROMFS		:=	romfs
 #GFXBUILD	:=	$(ROMFS)/gfx
 
