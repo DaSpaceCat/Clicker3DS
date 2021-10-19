@@ -19,6 +19,7 @@
 
 //This include a header containing definitions of our image
 #include "buy_bgr.h"
+#include "text_bgr.h"
 
 int clickUpPrice = 15;
 int clicks = 0;
@@ -69,6 +70,9 @@ int main(int argc, char **argv)
 	{
 		//copy our image into the bottom screen's frame buffer
 		memcpy(fb, buy_bgr, buy_bgr_size);
+
+		//attempted to display text on top of the store page, didn't work properly
+		//memcpy(fb, text_bgr, text_bgr_size);
 
 		//CPS loop
 		if (cpsTimer == 0) {

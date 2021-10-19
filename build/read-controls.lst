@@ -435,8 +435,8 @@
 001210f8 00000040 T __fixunsdfdi
 00121138 00000044 T strrchr
 0012117c T _fini
-00122010 R buy_bgr
-0015a410 R buy_bgr_end
+00122010 R text_bgr
+0015a410 R text_bgr_end
 0015a598 00000030 r colorTable
 0015a5c8 00000070 r dotab_stdout
 0015a65c 00000008 r morton_x.3

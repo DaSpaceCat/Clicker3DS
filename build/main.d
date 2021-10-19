@@ -79,7 +79,8 @@ main.o: C:/devkitPro/examples/3ds/input/read-controls/source/main.c \
  C:/devkitPro/libctru/include/3ds/romfs.h \
  C:/devkitPro/libctru/include/3ds/font.h \
  C:/devkitPro/libctru/include/3ds/gdbhio_dev.h \
- C:/devkitPro/examples/3ds/input/read-controls/build/buy_bgr.h
+ C:/devkitPro/examples/3ds/input/read-controls/build/buy_bgr.h \
+ C:/devkitPro/examples/3ds/input/read-controls/build/text_bgr.h
 C:/devkitPro/libctru/include/3ds.h:
 C:/devkitPro/libctru/include/3ds/types.h:
 C:/devkitPro/libctru/include/3ds/result.h:
@@ -161,3 +162,4 @@ C:/devkitPro/libctru/include/3ds/romfs.h:
 C:/devkitPro/libctru/include/3ds/font.h:
 C:/devkitPro/libctru/include/3ds/gdbhio_dev.h:
 C:/devkitPro/examples/3ds/input/read-controls/build/buy_bgr.h:
+C:/devkitPro/examples/3ds/input/read-controls/build/text_bgr.h:
