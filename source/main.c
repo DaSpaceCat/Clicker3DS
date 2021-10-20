@@ -29,6 +29,9 @@ int cpsTimer = 0;
 int clickerprice = 50;
 
 int buyscreen = 1;
+int buytime = 0;
+bool buy1 = false;
+bool buy2 = false;
 
 int main(int argc, char **argv)
 {
@@ -82,6 +85,11 @@ int main(int argc, char **argv)
 
 		if (kDown & KEY_START) break; // break in order to return to hbmenu
 
+		//Read the touch screen coordinates and add them to a variable
+		touchPosition touch;
+		hidTouchRead(&touch);
+
+		//shop page switching code
 		if (kDown & KEY_ZR) {
 			buyscreen += 1;
 			if (buyscreen > 2) {
@@ -99,8 +107,27 @@ int main(int argc, char **argv)
 		if (buyscreen == 1) memcpy(fb, buy1_bgr, buy1_bgr_size);
 		if (buyscreen == 2) memcpy(fb, buy2_bgr, buy2_bgr_size);
 
-		//attempted to display text on top of the store page, didn't work properly
-		//memcpy(fb, text_bgr, text_bgr_size);
+		//figure out if the buy buttons are getting pressed
+		if (touch.px > 20 && touch.px < 150 && touch.py > 40 && touch.py < 220) buy1 = true; else buy1 = false;
+		if (touch.px > 170 && touch.px < 300 && touch.py > 40 && touch.py < 220) buy2 = true; else buy2 = false;
+		if (buytime >= 1) buytime -= 1;
+
+		//purchasing code
+		if (buy1) {
+			if (clicks >= clickUpPrice && buyscreen == 1) {
+				clicks -= clickUpPrice;
+				CPC += 1;
+				clickUpPrice += 5;
+			}
+		}
+
+		if (buy2) {
+			if (clicks >= clickerprice && buyscreen == 1) {
+				clicks -= clickerprice;
+				clickerprice += 25;
+				CPS += 1;
+			}
+		}
 
 		//CPS loop
 		if (cpsTimer == 0) {
@@ -110,10 +137,6 @@ int main(int argc, char **argv)
 		//update clicks
 		consoleSelect(&top);
 		printf("\x1b[1;1HClicks: %d\n", clicks);
-
-		//Read the touch screen coordinates and add them to a variable
-		touchPosition touch;
-		hidTouchRead(&touch);
 
 		//Do the keys printing only if keys have changed
 		if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
@@ -131,26 +154,13 @@ int main(int argc, char **argv)
 			if (kDown & KEY_A || kDown & KEY_L || kDown & KEY_R) {clicks += CPC;}
 			printf("\x1b[3;1HClicks per Click: %d\n", CPC);
 			printf("\x1b[4;1HClicks per Second: %d\n", CPS);
-			printf("\x1b[6;1HPress X to upgrade your CPC for %d\n", clickUpPrice);
-			printf("\x1b[7;1HPress Y to purchase a clicker, to add to the CPS, for %d\n", clickerprice);
-			if(kDown & KEY_X) {
-				if (clicks >= clickUpPrice) {
-					clicks -= clickUpPrice;
-					CPC += 1;
-					clickUpPrice += 5;
-				}
-			}
-			if(kDown & KEY_Y) {
-				if (clicks >= clickerprice) {
-					clicks -= clickerprice;
-					clickerprice += 25;
-					CPS += 1;
-				}
-			}
+			printf("\x1b[6;1HCPC upgrade is: %d\n", clickUpPrice);
+			printf("\x1b[7;1HClickers are: %d\n", clickerprice);
 		}
 
-		printf("\x1b[10;1HTouch Screen position X: %d\n", touch.px);
-		printf("\x1b[11;1HTouch Screen position Y: %d\n", touch.py);
+		//we don't need these anymore, but they just show the position of the touchscreen input on the top display.
+		/*printf("\x1b[10;1HTouch Screen position X: %d\n", touch.px);
+		printf("\x1b[11;1HTouch Screen position Y: %d\n", touch.py);*/
 
 		//Set keys old values for the next frame
 		kDownOld = kDown;
