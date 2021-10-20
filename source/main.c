@@ -113,19 +113,21 @@ int main(int argc, char **argv)
 		if (buytime >= 1) buytime -= 1;
 
 		//purchasing code
-		if (buy1) {
+		if (buy1 && buytime == 0) {
 			if (clicks >= clickUpPrice && buyscreen == 1) {
 				clicks -= clickUpPrice;
 				CPC += 1;
 				clickUpPrice += 5;
+				buytime = 30;
 			}
 		}
 
-		if (buy2) {
+		if (buy2 && buytime == 0) {
 			if (clicks >= clickerprice && buyscreen == 1) {
 				clicks -= clickerprice;
 				clickerprice += 25;
 				CPS += 1;
+				buytime = 30;
 			}
 		}
 
