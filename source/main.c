@@ -155,10 +155,12 @@ int main(int argc, char **argv)
 		CPS = clickerown*clickerUown;
 
 		//CPS loop
-		if (cpsTimer == 0) {
-			cpsTimer = 60;
-			clicks += CPS;
-		} else {cpsTimer -= 1;}
+		if (CPS > 60) clicks += CPS/60; else {
+			if (cpsTimer == 0) {
+				cpsTimer = 60;
+				clicks += CPS;
+			} else {cpsTimer -= 1;}
+		}
 		//update clicks
 		consoleSelect(&top);
 		printf("\x1b[1;1HClicks: %d\n", clicks);
