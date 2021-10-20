@@ -27,6 +27,10 @@ int CPC = 1;
 int CPS = 0;
 int cpsTimer = 0;
 int clickerprice = 50;
+int clickerown = 0;
+int clickerUprice = 1000;
+int clickerUown = 1;
+int clickm2price = 500;
 
 int buyscreen = 1;
 int buytime = 0;
@@ -114,22 +118,41 @@ int main(int argc, char **argv)
 
 		//purchasing code
 		if (buy1 && buytime == 0) {
+			//click upgrade
 			if (clicks >= clickUpPrice && buyscreen == 1) {
 				clicks -= clickUpPrice;
-				CPC += 1;
 				clickUpPrice += 5;
+				CPC += 1;
+				buytime = 30;
+			}
+			//clicker upgrade
+			if (clicks >= clickerUprice && buyscreen == 2) {
+				clicks -= clickerUprice;
+				clickerUprice = clickerUprice*2;
+				clickerUown = clickerUown*2;
 				buytime = 30;
 			}
 		}
 
 		if (buy2 && buytime == 0) {
+			//clicker
 			if (clicks >= clickerprice && buyscreen == 1) {
 				clicks -= clickerprice;
 				clickerprice += 25;
-				CPS += 1;
+				clickerown += 1;
+				buytime = 30;
+			}
+			//click upgrade, mk2
+			if (clicks >= clickm2price && buyscreen == 2) {
+				clicks -= clickm2price;
+				clickm2price += 100;
+				CPC += 10;
 				buytime = 30;
 			}
 		}
+
+		//calc CPS
+		CPS = clickerown*clickerUown;
 
 		//CPS loop
 		if (cpsTimer == 0) {
@@ -156,8 +179,15 @@ int main(int argc, char **argv)
 			if (kDown & KEY_A || kDown & KEY_L || kDown & KEY_R) {clicks += CPC;}
 			printf("\x1b[3;1HClicks per Click: %d\n", CPC);
 			printf("\x1b[4;1HClicks per Second: %d\n", CPS);
-			printf("\x1b[6;1HCPC upgrade is: %d\n", clickUpPrice);
-			printf("\x1b[7;1HClickers are: %d\n", clickerprice);
+			if (buyscreen == 1) {
+				printf("\x1b[6;1HCPC upgrade is: %d\n", clickUpPrice);
+				printf("\x1b[7;1HClickers are: %d\n", clickerprice);
+			}
+			if (buyscreen == 2) {
+				printf("\x1b[6;1HClicker Upgrade is: %d\n", clickerUprice);
+				printf("\x1b[7;1HCPC Upgrade mk.2 is: %d\n", clickm2price);
+			}
+	
 		}
 
 		//we don't need these anymore, but they just show the position of the touchscreen input on the top display.
