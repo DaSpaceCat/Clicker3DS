@@ -67,12 +67,6 @@ int main(int argc, char **argv)
 	u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
 
 	u32 kDownOld = 0, kHeldOld = 0, kUpOld = 0; //In these variables there will be information about keys detected in the previous frame
-	
-	consoleSelect(&top);
-	printf("\x1b[1;1HPress A to start.");
-
-	//consoleSelect(&bottom);
-	//printf("\x1b[1;1HPress Start to exit.");
 
 	// Main loop
 	while (aptMainLoop())
@@ -129,7 +123,7 @@ int main(int argc, char **argv)
 			if (clicks >= clickerUprice && buyscreen == 2) {
 				clicks -= clickerUprice;
 				clickerUprice = clickerUprice*2;
-				clickerUown = clickerUown*2;
+				clickerUown += 1;
 				buytime = 30;
 			}
 		}
