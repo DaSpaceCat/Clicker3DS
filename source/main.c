@@ -13,13 +13,27 @@
 	-Many others who worked on 3DS and I'm surely forgetting about
 */
 
+#include <citro2d.h>
+
+#include <assert.h>
 #include <3ds.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 //This include a header containing definitions of our image
 #include "buy1_bgr.h"
 #include "buy2_bgr.h"
+
+#define SCREEN_WIDTH  400
+#define SCREEN_HEIGHT 240
+
+// Simple sprite struct
+typedef struct
+{
+	C2D_Sprite spr;
+	//float dx, dy; // velocity
+} Sprite;
 
 int clickUpPrice = 15;
 int clicks = 0;
@@ -37,6 +51,9 @@ int buytime = 0;
 bool buy1 = false;
 bool buy2 = false;
 
+static C2D_SpriteSheet spriteSheet;
+static Sprite sprites[100];
+
 int main(int argc, char **argv)
 {
 	//Matrix containing the name of each key. Useful for printing when a key is pressed
@@ -52,13 +69,25 @@ int main(int argc, char **argv)
 	};*/
 
 	// Initialize services
+	romfsInit();
 	gfxInitDefault();
+	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
+	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
+	C2D_Prepare();
 
-	PrintConsole top;
+	// Create screens
+	C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 
-	//Initialize console on top screen. Using NULL as the second argument tells the console library to use the internal console structure as current one
-	consoleInit(GFX_TOP, &top);
-	//consoleInit(GFX_BOTTOM, &bottom);
+	// Load graphics
+	spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
+	if (!spriteSheet) svcBreak(USERBREAK_PANIC);
+
+	size_t numImages = C2D_SpriteSheetCount(spriteSheet);
+	for (size_t i = 0; i < numImages; i++) {
+		C2D_SpriteFromSheet(&sprites->spr, spriteSheet, rand() % numImages);
+		C2D_SpriteSetCenter(&sprites->spr, 0.5f, 0.5f);
+		C2D_SpriteSetPos(&sprites->spr, rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT);
+	}
 
 	//set framebuffers
 	gfxSetDoubleBuffering(GFX_BOTTOM, false);
@@ -71,6 +100,7 @@ int main(int argc, char **argv)
 	// Main loop
 	while (aptMainLoop())
 	{
+
 		//Scan all the inputs. This should be done once for each frame
 		hidScanInput();
 
@@ -155,25 +185,17 @@ int main(int argc, char **argv)
 				clicks += CPS;
 			} else {cpsTimer -= 1;}
 		}
-		//update clicks
-		consoleSelect(&top);
-		printf("\x1b[1;1HClicks: %d\n", clicks);
+		
+		//update clicks (console)
+		//consoleSelect(&top);
+		//printf("\x1b[1;1HClicks: %d\n", clicks);
 
 		//Do the keys printing only if keys have changed
 		if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
 		{
-			//Clear console
-			consoleClear();
-			
-			/*consoleSelect(&bottom);
-			//These two lines must be rewritten because we cleared the whole console
-			printf("\x1b[1;1HPress Start to exit.");
-			printf("\x1b[2;1HCirclePad position:");*/
 
-			consoleSelect(&top);
-			consoleClear();
 			if (kDown & KEY_A || kDown & KEY_L || kDown & KEY_R) {clicks += CPC;}
-			printf("\x1b[3;1HClicks per Click: %d\n", CPC);
+			/*(printf("\x1b[3;1HClicks per Click: %d\n", CPC);
 			printf("\x1b[4;1HClicks per Second: %d\n", CPS);
 			if (buyscreen == 1) {
 				printf("\x1b[6;1HCPC upgrade is: %d\n", clickUpPrice);
@@ -182,13 +204,9 @@ int main(int argc, char **argv)
 			if (buyscreen == 2) {
 				printf("\x1b[6;1HClicker Upgrade is: %d\n", clickerUprice);
 				printf("\x1b[7;1HCPC Upgrade mk.2 is: %d\n", clickm2price);
-			}
+			}*/
 	
 		}
-
-		//we don't need these anymore, but they just show the position of the touchscreen input on the top display.
-		/*printf("\x1b[10;1HTouch Screen position X: %d\n", touch.px);
-		printf("\x1b[11;1HTouch Screen position Y: %d\n", touch.py);*/
 
 		//Set keys old values for the next frame
 		kDownOld = kDown;
@@ -200,12 +218,13 @@ int main(int argc, char **argv)
 		//Read the CirclePad position
 		hidCircleRead(&pos);
 
-		/*consoleSelect(&bottom);
-		//Print the CirclePad position
-		printf("\x1b[3;1H%04d; %04d", pos.dx, pos.dy);
-
-		//print the CPS timer value
-		printf("\x1b[29 ;1HCPS timer value: %d\n", cpsTimer);*/
+		// Render the scene
+		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+		C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+		C2D_SceneBegin(top);
+		for (size_t i = 0; i < 100; i ++)
+			C2D_DrawSprite(&sprites[i].spr);
+		C3D_FrameEnd(0);
 
 		// Flush and swap framebuffers
 		gfxFlushBuffers();
@@ -215,7 +234,13 @@ int main(int argc, char **argv)
 		gspWaitForVBlank();
 	}
 
-	// Exit services
+	// Delete graphics
+	C2D_SpriteSheetFree(spriteSheet);
+
+	// Deinit libs
+	C2D_Fini();
+	C3D_Fini();
 	gfxExit();
+	romfsExit();
 	return 0;
 }
