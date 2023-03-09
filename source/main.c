@@ -1,18 +1,3 @@
-/*
-	Circle Pad example made by Aurelio Mannara for libctru
-	Please refer to https://github.com/devkitPro/libctru/blob/master/libctru/include/3ds/services/hid.h for more information
-	This code was modified for the last time on: 12/13/2014 2:20 UTC+1
-
-	This wouldn't be possible without the amazing work done by:
-	-Smealum
-	-fincs
-	-WinterMute
-	-yellows8
-	-plutoo
-	-mtheall
-	-Many others who worked on 3DS and I'm surely forgetting about
-*/
-
 #include <citro2d.h>
 
 #include <assert.h>
@@ -21,9 +6,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-//This include a header containing definitions of our image
+//This includes a header containing definitions of our image
 #include "buy1_bgr.h"
 #include "buy2_bgr.h"
+#include "toptest_bgr.h"
 
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
@@ -71,12 +57,12 @@ int main(int argc, char **argv)
 	// Initialize services
 	romfsInit();
 	gfxInitDefault();
-	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
+	//C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
 
 	// Create screens
-	C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+	//C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 
 	// Load graphics
 	spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
@@ -91,9 +77,11 @@ int main(int argc, char **argv)
 
 	//set framebuffers
 	gfxSetDoubleBuffering(GFX_BOTTOM, false);
+	gfxSetDoubleBuffering(GFX_TOP, false);
 
-	//Get the bottom screen's frame buffer
-	u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+	//Get the bottom and top screen frame buffers
+	u8* fbt = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+	u8* fbb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
 
 	u32 kDownOld = 0, kHeldOld = 0, kUpOld = 0; //In these variables there will be information about keys detected in the previous frame
 
@@ -131,9 +119,10 @@ int main(int argc, char **argv)
 			}
 		}
 
+		memcpy(fbt, toptest_bgr, toptest_bgr_size);
 		//copy our image into the bottom screen's frame buffer
-		if (buyscreen == 1) memcpy(fb, buy1_bgr, buy1_bgr_size);
-		if (buyscreen == 2) memcpy(fb, buy2_bgr, buy2_bgr_size);
+		if (buyscreen == 1) memcpy(fbb, buy1_bgr, buy1_bgr_size);
+		if (buyscreen == 2) memcpy(fbb, buy2_bgr, buy2_bgr_size);
 
 		//figure out if the buy buttons are getting pressed
 		if (touch.px > 20 && touch.px < 150 && touch.py > 40 && touch.py < 220) buy1 = true; else buy1 = false;
@@ -190,21 +179,9 @@ int main(int argc, char **argv)
 		//consoleSelect(&top);
 		//printf("\x1b[1;1HClicks: %d\n", clicks);
 
-		//Do the keys printing only if keys have changed
 		if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
 		{
-
 			if (kDown & KEY_A || kDown & KEY_L || kDown & KEY_R) {clicks += CPC;}
-			/*(printf("\x1b[3;1HClicks per Click: %d\n", CPC);
-			printf("\x1b[4;1HClicks per Second: %d\n", CPS);
-			if (buyscreen == 1) {
-				printf("\x1b[6;1HCPC upgrade is: %d\n", clickUpPrice);
-				printf("\x1b[7;1HClickers are: %d\n", clickerprice);
-			}
-			if (buyscreen == 2) {
-				printf("\x1b[6;1HClicker Upgrade is: %d\n", clickerUprice);
-				printf("\x1b[7;1HCPC Upgrade mk.2 is: %d\n", clickm2price);
-			}*/
 	
 		}
 
@@ -213,18 +190,12 @@ int main(int argc, char **argv)
 		kHeldOld = kHeld;
 		kUpOld = kUp;
 
-		circlePosition pos;
-
-		//Read the CirclePad position
-		hidCircleRead(&pos);
-
 		// Render the scene
-		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-		C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-		C2D_SceneBegin(top);
+		//C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+		//C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+		//C2D_SceneBegin(top);
 		for (size_t i = 0; i < 100; i ++)
 			C2D_DrawSprite(&sprites[i].spr);
-		C3D_FrameEnd(0);
 
 		// Flush and swap framebuffers
 		gfxFlushBuffers();
