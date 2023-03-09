@@ -14,6 +14,9 @@
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
 
+C2D_TextBuf g_dynBuf;
+C2D_Font font;
+
 // Simple sprite struct
 typedef struct
 {
@@ -56,13 +59,17 @@ int main(int argc, char **argv)
 
 	// Initialize services
 	romfsInit();
+	cfguInit();
 	gfxInitDefault();
-	//C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
+	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
 
 	// Create screens
-	//C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+	C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+
+	g_dynBuf = C2D_TextBufNew(4096);
+	font = C2D_FontLoad("romfs:/FiraCode-Regular.bcfnt");
 
 	// Load graphics
 	spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
@@ -80,7 +87,7 @@ int main(int argc, char **argv)
 	gfxSetDoubleBuffering(GFX_TOP, false);
 
 	//Get the bottom and top screen frame buffers
-	u8* fbt = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+	//u8* fbt = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
 	u8* fbb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
 
 	u32 kDownOld = 0, kHeldOld = 0, kUpOld = 0; //In these variables there will be information about keys detected in the previous frame
@@ -88,6 +95,7 @@ int main(int argc, char **argv)
 	// Main loop
 	while (aptMainLoop())
 	{
+		C2D_TextBufClear(g_dynBuf);
 
 		//Scan all the inputs. This should be done once for each frame
 		hidScanInput();
@@ -119,7 +127,21 @@ int main(int argc, char **argv)
 			}
 		}
 
-		memcpy(fbt, toptest_bgr, toptest_bgr_size);
+		//memcpy(fbt, toptest_bgr, toptest_bgr_size);
+		//render text scene
+		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+		C2D_TargetClear(top, C2D_Color32(0x68, 0xB0, 0xD8, 0xFF));
+		C2D_SceneBegin(top);
+
+		char buf[160];
+		C2D_Text dynText;
+		snprintf(buf, sizeof(buf), "Clicks %i\nCPS: %i", clicks, CPS);
+		C2D_TextFontParse(&dynText, font, g_dynBuf, buf);
+		C2D_TextOptimize(&dynText);
+		C2D_DrawText(&dynText, C2D_AlignLeft, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f);
+
+		C3D_FrameEnd(0);
+
 		//copy our image into the bottom screen's frame buffer
 		if (buyscreen == 1) memcpy(fbb, buy1_bgr, buy1_bgr_size);
 		if (buyscreen == 2) memcpy(fbb, buy2_bgr, buy2_bgr_size);
@@ -190,10 +212,6 @@ int main(int argc, char **argv)
 		kHeldOld = kHeld;
 		kUpOld = kUp;
 
-		// Render the scene
-		//C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-		//C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-		//C2D_SceneBegin(top);
 		for (size_t i = 0; i < 100; i ++)
 			C2D_DrawSprite(&sprites[i].spr);
 
@@ -211,6 +229,7 @@ int main(int argc, char **argv)
 	// Deinit libs
 	C2D_Fini();
 	C3D_Fini();
+	cfguExit();
 	gfxExit();
 	romfsExit();
 	return 0;
