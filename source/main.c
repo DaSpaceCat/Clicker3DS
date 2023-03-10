@@ -25,7 +25,7 @@ typedef struct
 } Sprite;
 
 int clickUpPrice = 15;
-int clicks = 0;
+unsigned int clicks = 0;
 int CPC = 1;
 int CPS = 0;
 int cpsTimer = 0;
@@ -127,25 +127,6 @@ int main(int argc, char **argv)
 			}
 		}
 
-		//memcpy(fbt, toptest_bgr, toptest_bgr_size);
-		//render text scene
-		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-		C2D_TargetClear(top, C2D_Color32(0x68, 0xB0, 0xD8, 0xFF));
-		C2D_SceneBegin(top);
-
-		char buf[160];
-		C2D_Text dynText;
-		snprintf(buf, sizeof(buf), "Clicks %i\nCPS: %i", clicks, CPS);
-		C2D_TextFontParse(&dynText, font, g_dynBuf, buf);
-		C2D_TextOptimize(&dynText);
-		C2D_DrawText(&dynText, C2D_AlignLeft, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f);
-
-		C3D_FrameEnd(0);
-
-		//copy our image into the bottom screen's frame buffer
-		if (buyscreen == 1) memcpy(fbb, buy1_bgr, buy1_bgr_size);
-		if (buyscreen == 2) memcpy(fbb, buy2_bgr, buy2_bgr_size);
-
 		//figure out if the buy buttons are getting pressed
 		if (touch.px > 20 && touch.px < 150 && touch.py > 40 && touch.py < 220) buy1 = true; else buy1 = false;
 		if (touch.px > 170 && touch.px < 300 && touch.py > 40 && touch.py < 220) buy2 = true; else buy2 = false;
@@ -190,9 +171,9 @@ int main(int argc, char **argv)
 		CPS = clickerown*clickerUown;
 
 		//CPS loop
-		if (CPS > 60) clicks += CPS/60; else {
+		if (CPS > 30) clicks += CPS/30; else {
 			if (cpsTimer == 0) {
-				cpsTimer = 60;
+				cpsTimer = 30;
 				clicks += CPS;
 			} else {cpsTimer -= 1;}
 		}
@@ -204,8 +185,42 @@ int main(int argc, char **argv)
 		if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
 		{
 			if (kDown & KEY_A || kDown & KEY_L || kDown & KEY_R) {clicks += CPC;}
-	
 		}
+
+		//render text scene
+		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+		C2D_TargetClear(top, C2D_Color32(0x18, 0x18, 0x26, 0xFF));
+		C2D_SceneBegin(top);
+
+		u32 color = 0xCDD6F4FF;
+		//main CPS / CPC display
+		char buf1[160];
+		C2D_Text dynText;
+		snprintf(buf1, sizeof(buf1), "Clicks %u\nCPS: %i\nCPC: %i", clicks, CPS, CPC);
+		C2D_TextFontParse(&dynText, font, g_dynBuf, buf1);
+		C2D_TextOptimize(&dynText);
+		C2D_DrawText(&dynText, C2D_AlignCenter | C2D_WithColor, 200.0f, 0.0f, 0.0f, 1.0f, 1.0f, color);
+
+		//other text
+		char buf2[160];
+		C2D_Text costDisp;
+		snprintf(buf2, sizeof(buf2), "Clicker Price: %i\nClickers Owned: %i", clickerprice, clickerown);
+		C2D_TextFontParse(&costDisp, font, g_dynBuf, buf2);
+		C2D_TextOptimize(&costDisp);
+		C2D_DrawText(&costDisp, C2D_AlignLeft | C2D_WithColor, 10.0f, 200.0f, 0.0f, 0.7f, 0.7f, color);
+
+		char buf3[160];
+		C2D_Text costDisp2;
+		snprintf(buf3, sizeof(buf3), "CPC Upgrade Price: %i\nCPC Upgrades Owned: %i", clickerUprice, clickerUown);
+		C2D_TextFontParse(&costDisp2, font, g_dynBuf, buf3);
+		C2D_TextOptimize(&costDisp2);
+		C2D_DrawText(&costDisp2, C2D_AlignRight | C2D_WithColor, 390.0f, 200.0f, 0.0f, 0.7f, 0.7f, color);
+
+		C3D_FrameEnd(0);
+
+		//copy our image into the bottom screen's frame buffer
+		if (buyscreen == 1) memcpy(fbb, buy1_bgr, buy1_bgr_size);
+		if (buyscreen == 2) memcpy(fbb, buy2_bgr, buy2_bgr_size);
 
 		//Set keys old values for the next frame
 		kDownOld = kDown;
