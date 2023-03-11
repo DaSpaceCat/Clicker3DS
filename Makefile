@@ -31,14 +31,14 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-TARGET		:=	$(notdir $(CURDIR))
+TARGET		:=	bin/clicker
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data
 INCLUDES	:=	include
 GRAPHICS	:=	gfx
 ROMFS		:=	romfs
-GFXBUILD	:=	$(ROMFS)
+GFXBUILD	:=	$(BUILD)
 APP_TITLE   := Clicker3DS
 APP_DESCRIPTION := A simple clicker game.
 APP_AUTHOR  := Renii

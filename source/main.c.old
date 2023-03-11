@@ -14,7 +14,6 @@
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
 
-C2D_TextBuf g_dynBuf;
 C2D_Font font;
 
 // Simple sprite struct
@@ -25,7 +24,7 @@ typedef struct
 } Sprite;
 
 int clickUpPrice = 15;
-unsigned int clicks = 0;
+int clicks = 0;
 int CPC = 1;
 int CPS = 0;
 int cpsTimer = 0;
@@ -64,6 +63,8 @@ int main(int argc, char **argv)
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
+
+	C2D_TextBuf g_dynBuf;
 
 	// Create screens
 	C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
