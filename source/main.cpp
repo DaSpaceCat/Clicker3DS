@@ -251,11 +251,12 @@ int main(int argc, char **argv)
 		u32 col = 0xCDD6F4FF;
 		//main CPS / CPC display
 		drawRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
-		drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks: %llu\nCPS   : %llu\nCPC   : %llu", clicks, CPS, CPC);
+		drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
 
 		drawRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
 		if (controls) {
 			drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Controls:\nA/L/R: Click\nX: Toggle Control Help\nZL/ZR/D-Pad: Switch Shop Page\nStart: Exit");
+			drawDynamicText(g_dynBuf, 5.0f, 220.0f, 0.7f, col, font, C2D_AlignLeft, "Frame: %i", frame);
 		} else {
 			if (DEBUG) {
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
@@ -275,7 +276,6 @@ int main(int argc, char **argv)
 		//fill: C2D_Color32(0x18, 0x18, 0x25, 0xFF);
 		drawRect(5 , 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
 		drawRect(165, 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
-		//5 + 145
 
 		//draw the buy buttons' text
 		switch (buyscreen) {
@@ -297,13 +297,6 @@ int main(int argc, char **argv)
 		kDownOld = kDown;
 		kHeldOld = kHeld;
 		kUpOld = kUp;
-
-		/*for (size_t i = 0; i < 100; i ++)
-			C2D_DrawSprite(&sprites[i].spr);*/
-
-		// Flush and swap framebuffers
-		gfxFlushBuffers();
-		gfxSwapBuffers();
 
 		//Wait for VBlank
 		gspWaitForVBlank();
