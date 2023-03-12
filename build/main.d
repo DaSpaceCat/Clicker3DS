@@ -106,10 +106,7 @@ main.o: /home/rhi/Documents/code/clicker3ds/source/main.cpp \
  /opt/devkitpro/libctru/include/c2d/spritesheet.h \
  /opt/devkitpro/libctru/include/c2d/sprite.h \
  /opt/devkitpro/libctru/include/c2d/text.h \
- /opt/devkitpro/libctru/include/c2d/font.h \
- /home/rhi/Documents/code/clicker3ds/build/buy1_bgr.h \
- /home/rhi/Documents/code/clicker3ds/build/buy2_bgr.h \
- /home/rhi/Documents/code/clicker3ds/build/toptest_bgr.h
+ /opt/devkitpro/libctru/include/c2d/font.h
 /opt/devkitpro/libctru/include/citro2d.h:
 /opt/devkitpro/libctru/include/citro3d.h:
 /opt/devkitpro/libctru/include/c3d/types.h:
@@ -218,6 +215,3 @@ main.o: /home/rhi/Documents/code/clicker3ds/source/main.cpp \
 /opt/devkitpro/libctru/include/c2d/sprite.h:
 /opt/devkitpro/libctru/include/c2d/text.h:
 /opt/devkitpro/libctru/include/c2d/font.h:
-/home/rhi/Documents/code/clicker3ds/build/buy1_bgr.h:
-/home/rhi/Documents/code/clicker3ds/build/buy2_bgr.h:
-/home/rhi/Documents/code/clicker3ds/build/toptest_bgr.h:

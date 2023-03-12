@@ -7,11 +7,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-//This includes a header containing definitions of our image
-#include "buy1_bgr.h"
-#include "buy2_bgr.h"
-#include "toptest_bgr.h"
-
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
 
@@ -40,6 +35,7 @@ int frame = 0;
 
 int buyscreen = 1;
 int buytime = 0;
+int buyRepeatDelay = 5;
 bool buy1 = false;
 bool buy2 = false;
 bool controls = true;
@@ -124,7 +120,7 @@ int main(int argc, char **argv)
 		if (kDown & KEY_START) break; // break in order to return to hbmenu
 
 		if (kDown & KEY_SELECT) {
-			if (DEBUG) DEBUG = false; else DEBUG = true;
+			if (DEBUG) { DEBUG = false; } else { DEBUG = true; controls = false;}
 		}
 
 		//Read the touch screen coordinates and add them to a variable
@@ -174,6 +170,20 @@ int main(int argc, char **argv)
 				}
 			}
 
+			if (kDown & KEY_DUP) {
+				buyRepeatDelay++;
+				if (buyRepeatDelay > 30) {
+					buyRepeatDelay = 30;
+				}
+			}
+
+			if (kDown & KEY_DDOWN) {
+				buyRepeatDelay--;
+				if (buyRepeatDelay < 1) {
+					buyRepeatDelay = 1;
+				}
+			}
+
 			// click buttons
 			if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld) {
 				if (kDown & KEY_A || kDown & KEY_L || kDown & KEY_R) { clicks += CPC; }
@@ -193,14 +203,14 @@ int main(int argc, char **argv)
 				clickUpPrice += 5;
 				CPC += 1;
 				clickUpOwn++;
-				buytime = 5;
+				buytime = buyRepeatDelay;
 			}
 			//clicker upgrade
 			if (clicks >= clickerUprice && buyscreen == 2) {
 				clicks -= clickerUprice;
 				clickerUprice = clickerUprice*1.1f;
 				clickerUown += 1;
-				buytime = 5;
+				buytime = buyRepeatDelay;
 			}
 		}
 
@@ -211,14 +221,14 @@ int main(int argc, char **argv)
 				clickm2price += 100;
 				clickm2own++;
 				CPC += 10;
-				buytime = 5;
+				buytime = buyRepeatDelay;
 			}
 			//clicker
 			if (clicks >= clickerprice && buyscreen == 2) {
 				clicks -= clickerprice;
 				clickerprice += 25;
 				clickerown += 1;
-				buytime = 5;
+				buytime = buyRepeatDelay;
 			}
 		}
 
@@ -251,7 +261,8 @@ int main(int argc, char **argv)
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
 				drawDynamicText(g_dynBuf, 5.0f, 220.0f, 0.7f, col, font, C2D_AlignLeft, "DEBUG ENABLED | Frame: %i", frame);
 			} else {
-				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nFrame: %i\nBuy Cooldown: %i", frame, buytime);
+				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
+				drawDynamicText(g_dynBuf, 5.0f, 220.0f, 0.7f, col, font, C2D_AlignLeft, "Frame: %i", frame);
 			}
 		}
 
@@ -276,7 +287,7 @@ int main(int argc, char **argv)
 			case 2:
 				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 2");
 				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker+\nEach clicker\ngets +1 CPS\nPrice: %llu\nPrice+: %llu\nOwned: %llu", clickerUprice, clickerUprice/10, clickerUown-1);
-				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%i CPS\nPrice: %i\nPrice+: 25\nOwned: %i", clickerUown, clickerprice, clickerown);
+				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%llu CPS\nPrice: %i\nPrice+: 25\nOwned: %i", clickerUown, clickerprice, clickerown);
 				break;
 		}
 
