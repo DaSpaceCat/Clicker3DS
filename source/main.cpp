@@ -60,6 +60,10 @@ static void drawRect(float x, float y, float w, float h, float p, u32 color, u32
 	C2D_DrawRectSolid(x, y, 0.0f, w, h, border);
 	C2D_DrawRectSolid(x + p, y + p, 0.0f, w - p * 2, h - p * 2, color);
 }
+static void drawGradientRect(float x, float y, float w, float h, float p, u32 color, int r1, int g1, int b1, int r2, int g2, int b2) {
+	C2D_DrawRectangle(x, y, 0.0f, w, h, C2D_Color32(r1, g1, b1, 0xFF), C2D_Color32((r1*w/(w+h) + r2*h/(w+h)), (g1*w/(w+h) + g2*h/(w+h)), (b1*w/(w+h) + b2*h/(w+h)), 0xFF), C2D_Color32((r1*h/(w+h) + r2*w/(w+h)), (g1*h/(w+h) + g2*w/(w+h)), (b1*h/(w+h) + b2*w/(w+h)), 0xFF), C2D_Color32(r2, g2, b2, 0xFF));
+	C2D_DrawRectSolid(x + p, y + p, 0.0f, w - p * 2, h - p * 2, color);
+}
 
 int main(int argc, char **argv)
 {
@@ -117,7 +121,7 @@ int main(int argc, char **argv)
 		//hidKeysUp returns information about which buttons have been just released
 		u32 kUp = hidKeysUp();
 
-		if (kDown & KEY_START) break; // break in order to return to hbmenu
+		if (kHeld & KEY_START && kHeld & KEY_R) break; // break in order to return to hbmenu
 
 		if (kDown & KEY_SELECT) {
 			if (DEBUG) { DEBUG = false; } else { DEBUG = true; controls = false;}
@@ -250,20 +254,20 @@ int main(int argc, char **argv)
 
 		u32 col = 0xCDD6F4FF;
 		//main CPS / CPC display
-		drawRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
+		//drawGradientRect(0, 0, 400, 240, 0, C2D_Color32(0x18, 0x18, 0x28, 0x00), 0xA6, 0xE3, 0xA1, 0x89, 0xB4, 0xFA);
+		drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87);
 		drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
 
-		drawRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
 		if (controls) {
+			drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
 			drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Controls:\nA/L/R: Click\nX: Toggle Control Help\nZL/ZR/D-Pad: Switch Shop Page\nStart: Exit");
-			drawDynamicText(g_dynBuf, 5.0f, 220.0f, 0.7f, col, font, C2D_AlignLeft, "Frame: %i", frame);
 		} else {
 			if (DEBUG) {
+				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
-				drawDynamicText(g_dynBuf, 5.0f, 220.0f, 0.7f, col, font, C2D_AlignLeft, "DEBUG ENABLED | Frame: %i", frame);
 			} else {
+				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
-				drawDynamicText(g_dynBuf, 5.0f, 220.0f, 0.7f, col, font, C2D_AlignLeft, "Frame: %i", frame);
 			}
 		}
 
@@ -274,25 +278,32 @@ int main(int argc, char **argv)
 		//draw the buy buttons
 		//bord: C2D_Color32(0x58, 0x5B, 0x70, 0xFF);
 		//fill: C2D_Color32(0x18, 0x18, 0x25, 0xFF);
-		drawRect(5 , 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
-		drawRect(165, 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xFF), C2D_Color32(0x58, 0x5B, 0x70, 0xFF));
+		drawGradientRect(5 , 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87);
+		drawGradientRect(165, 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
+
+		if (DEBUG) {
+			drawDynamicText(g_dynBuf, 5.0f, 5.0f, 0.7f, col, font, C2D_AlignLeft, "Frame: %i", frame);
+			drawDynamicText(g_dynBuf, 315.0f, 5.0f, 0.7f, col, font, C2D_AlignRight, "DEBUG ON");
+		} else {
+			drawDynamicText(g_dynBuf, 5.0f, 5.0f, 0.7f, col, font, C2D_AlignLeft, "Frame: %i", frame);
+		}
 
 		//draw the buy buttons' text
 		switch (buyscreen) {
 			case 1:
-				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 1");
+				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop p.1");
 				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "CPC Upgrade\n+1 CPC\nPrice: %llu\nPrice+: 5\nOwned: %llu", clickUpPrice, clickUpOwn);
 				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "CPC Mk.2\n+10 CPC\nPrice: %llu\nPrice+: 100\nOwned: %llu", clickm2price, clickm2own);
 				break;
 			case 2:
-				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 2");
+				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop p.2");
 				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker+\nEach clicker\ngets +1 CPS\nPrice: %llu\nPrice+: %llu\nOwned: %llu", clickerUprice, clickerUprice/10, clickerUown-1);
 				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%llu CPS\nPrice: %llu\nPrice+: 25\nOwned: %llu", clickerUown, clickerprice, clickerown);
 				break;
 			case 3:
-				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 3");
-				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "there's nothing here yet");
-				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "why are you here");
+				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop p.3");
+				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "shhh");
+				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "it's a secret");
 				break;
 		}
 
