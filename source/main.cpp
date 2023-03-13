@@ -36,6 +36,7 @@ int frame = 0;
 int buyscreen = 1;
 int buytime = 0;
 int buyRepeatDelay = 5;
+int buyScreens = 3;
 bool buy1 = false;
 bool buy2 = false;
 bool controls = true;
@@ -131,14 +132,14 @@ int main(int argc, char **argv)
 		if (DEBUG) {
 			if (kDown & KEY_ZR) {
 				buyscreen += 1;
-				if (buyscreen > 3) {
+				if (buyscreen > buyScreens) {
 					buyscreen = 1;
 				}
 			}
 			if (kDown & KEY_ZL) {
 				buyscreen -= 1;
 				if (buyscreen < 1) {
-					buyscreen = 3;
+					buyscreen = buyScreens;
 				}
 			}
 			//add clickers
@@ -159,14 +160,14 @@ int main(int argc, char **argv)
 			// buy screen switcher
 			if (kDown & KEY_ZR || kDown & KEY_DRIGHT) {
 				buyscreen += 1;
-				if (buyscreen > 2) {
+				if (buyscreen > buyScreens) {
 					buyscreen = 1;
 				}
 			}
 			if (kDown & KEY_ZL || kDown & KEY_DLEFT) {
 				buyscreen -= 1;
 				if (buyscreen < 1) {
-					buyscreen = 2;
+					buyscreen = buyScreens;
 				}
 			}
 
