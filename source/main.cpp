@@ -19,20 +19,19 @@ typedef struct
 	//float dx, dy; // velocity
 } Sprite;
 
-int clickUpPrice = 15;
-int clickUpOwn = 0;
+unsigned long long int clickUpPrice = 15;
+unsigned long long int clickUpOwn = 0;
 unsigned long long int clicks = 0;
 unsigned long long int CPC = 1;
 unsigned long long int CPS = 0;
-int cpsTimer = 0;
-int clickerprice = 50;
-int clickerown = 0;
+unsigned long long int clickerprice = 50;
+unsigned long long int clickerown = 0;
 unsigned long long int clickerUprice = 1000;
 unsigned long long int clickerUown = 1;
-int clickm2price = 500;
-int clickm2own = 0;
+unsigned long long int clickm2price = 500;
+unsigned long long int clickm2own = 0;
 int frame = 0;
-
+int cpsTimer = 0;
 int buyscreen = 1;
 int buytime = 0;
 int buyRepeatDelay = 5;
@@ -282,13 +281,13 @@ int main(int argc, char **argv)
 		switch (buyscreen) {
 			case 1:
 				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 1");
-				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "CPC Upgrade\n+1 CPC\nPrice: %i\nPrice+: 5\nOwned: %i", clickUpPrice, clickUpOwn);
-				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "CPC Mk.2\n+10 CPC\nPrice: %i\nPrice+: 100\nOwned: %i", clickm2price, clickm2own);
+				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "CPC Upgrade\n+1 CPC\nPrice: %llu\nPrice+: 5\nOwned: %llu", clickUpPrice, clickUpOwn);
+				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "CPC Mk.2\n+10 CPC\nPrice: %llu\nPrice+: 100\nOwned: %llu", clickm2price, clickm2own);
 				break;
 			case 2:
 				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 2");
 				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker+\nEach clicker\ngets +1 CPS\nPrice: %llu\nPrice+: %llu\nOwned: %llu", clickerUprice, clickerUprice/10, clickerUown-1);
-				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%llu CPS\nPrice: %i\nPrice+: 25\nOwned: %i", clickerUown, clickerprice, clickerown);
+				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%llu CPS\nPrice: %llu\nPrice+: 25\nOwned: %llu", clickerUown, clickerprice, clickerown);
 				break;
 			case 3:
 				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 3");
