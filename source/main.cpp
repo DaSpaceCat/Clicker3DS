@@ -131,14 +131,14 @@ int main(int argc, char **argv)
 		if (DEBUG) {
 			if (kDown & KEY_ZR) {
 				buyscreen += 1;
-				if (buyscreen > 2) {
+				if (buyscreen > 3) {
 					buyscreen = 1;
 				}
 			}
 			if (kDown & KEY_ZL) {
 				buyscreen -= 1;
 				if (buyscreen < 1) {
-					buyscreen = 2;
+					buyscreen = 3;
 				}
 			}
 			//add clickers
@@ -288,6 +288,11 @@ int main(int argc, char **argv)
 				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 2");
 				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker+\nEach clicker\ngets +1 CPS\nPrice: %llu\nPrice+: %llu\nOwned: %llu", clickerUprice, clickerUprice/10, clickerUown-1);
 				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%llu CPS\nPrice: %i\nPrice+: 25\nOwned: %i", clickerUown, clickerprice, clickerown);
+				break;
+			case 3:
+				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop: Page 3");
+				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "there's nothing here yet");
+				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "why are you here");
 				break;
 		}
 
