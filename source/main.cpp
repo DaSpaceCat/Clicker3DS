@@ -1,7 +1,7 @@
-#include <citro2d.h>
-
 #include <assert.h>
 #include <3ds.h>
+#include <citro3d.h>
+#include <citro2d.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -175,7 +175,6 @@ int main(int argc, char **argv)
 	gfxSet3D(true);
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
-	C2D_Prepare();
 
 	C2D_TextBuf g_dynBuf;
 
@@ -194,7 +193,7 @@ int main(int argc, char **argv)
 
 	//set framebuffers
 	gfxSetDoubleBuffering(GFX_BOTTOM, false);
-	gfxSetDoubleBuffering(GFX_TOP, false);
+	//gfxSetDoubleBuffering(GFX_TOP, false);
 
 	u32 kDownOld = 0, kHeldOld = 0, kUpOld = 0; //In these variables there will be information about keys detected in the previous frame
 
@@ -357,6 +356,7 @@ int main(int argc, char **argv)
 		//main CPS / CPC display
 		//drawGradientRect(0, 0, 400, 240, 0, C2D_Color32(0x18, 0x18, 0x28, 0x00), 0xA6, 0xE3, 0xA1, 0x89, 0xB4, 0xFA);
 		scene3dRender(-iod);
+		C2D_Prepare();
 		drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87);
 		drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
 
