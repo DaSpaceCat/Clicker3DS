@@ -177,6 +177,7 @@ all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(ROMFS_FONTFILES) $(T3XH
 
 $(BUILD):
 	@mkdir -p $@
+	@mkdir -p bin
 
 ifneq ($(GFXBUILD),$(BUILD))
 $(GFXBUILD):
