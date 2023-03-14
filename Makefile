@@ -128,11 +128,8 @@ endif
 export OFILES_SOURCES 	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 
 export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES)) \
-			$(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) \
+			$(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) $(PNGFILES:.png=.bgr.o)\
 			$(addsuffix .o,$(T3XFILES)) $(addsuffix .o,$(EFONTFILES))
-
-export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES)) \
-				$(PNGFILES:.png=.bgr.o) \
 
 export OFILES := $(OFILES_BIN) $(OFILES_SOURCES)
 
@@ -212,7 +209,7 @@ else
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).3dsx	:	$(OUTPUT).elf $(_3DSXDEPS)
+$(OUTPUT).3dsx	: $(OUTPUT).elf $(_3DSXDEPS)
 
 $(OFILES_SOURCES) : $(HFILES)
 

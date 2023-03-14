@@ -145,7 +145,6 @@ static void scene3dRender(float iod) {
 	// Draw the VBO
 	C3D_DrawArrays(GPU_TRIANGLES, 0, vertex_list_count);
 }
-
 static void drawDynamicText(C2D_TextBuf buffer, float x, float y, float scale, u32 color, C2D_Font rfont, u32 flags, const char* text, ...) {
 	char buff[160];
 	C2D_Text textVar;
@@ -161,10 +160,10 @@ static void drawGradientRect(float x, float y, float w, float h, float p, u32 co
 	C2D_DrawRectangle(x, y, 0.0f, w, h, C2D_Color32(r1, g1, b1, 0xFF), C2D_Color32((r1*w/(w+h) + r2*h/(w+h)), (g1*w/(w+h) + g2*h/(w+h)), (b1*w/(w+h) + b2*h/(w+h)), 0xFF), C2D_Color32((r1*h/(w+h) + r2*w/(w+h)), (g1*h/(w+h) + g2*w/(w+h)), (b1*h/(w+h) + b2*w/(w+h)), 0xFF), C2D_Color32(r2, g2, b2, 0xFF));
 	C2D_DrawRectSolid(x + p, y + p, 0.0f, w - p * 2, h - p * 2, color);
 }
-/*static void drawRect(float x, float y, float w, float h, float p, u32 color, u32 border) {
+static void drawRect(float x, float y, float w, float h, float p, u32 color, u32 border) {
 	C2D_DrawRectSolid(x, y, 0.0f, w, h, border);
 	C2D_DrawRectSolid(x + p, y + p, 0.0f, w - p * 2, h - p * 2, color);
-}*/
+}
 
 int main(int argc, char **argv)
 {
@@ -344,6 +343,10 @@ int main(int argc, char **argv)
 			} else {cpsTimer -= 1;}
 		}
 
+		//rotate
+		angleX += 1.0f/64;
+		angleY += 1.0f/256;
+
 		//render scenes
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 		//C2D_TargetClear(top, C2D_Color32(0x1E, 0x1E, 0x2E, 0xFF));
@@ -368,7 +371,8 @@ int main(int argc, char **argv)
 				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
 			} else {
-				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
+				//drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
+				drawRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x99), C2D_Color32(0x18, 0x18, 0x28, 0x00));
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
 			}
 		}
