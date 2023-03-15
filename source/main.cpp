@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "vshader_shbin.h"
-#include "cube.h"
+#include "torus.h"
 
 #define CLEAR_COLOR 0x1E1E2EFF
 #define SCREEN_WIDTH  400
