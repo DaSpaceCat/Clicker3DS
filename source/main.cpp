@@ -127,7 +127,7 @@ static void scene3dRender(float iod) {
 	// Compute the projection matrix
 	Mtx_PerspStereoTilt(&projection, C3D_AngleFromDegrees(40.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, iod, 2.0f, false);
 
-	C3D_FVec objPos   = FVec4_New(0.0f, 0.0f, -3.0f, 1.0f);
+	C3D_FVec objPos   = FVec4_New(0.0f, 0.0f, -7.0f, 1.0f);
 	C3D_FVec lightPos = FVec4_New(0.0f, 0.0f, -0.5f, 1.0f);
 
 	// Calculate the modelView matrix
