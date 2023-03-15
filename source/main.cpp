@@ -358,6 +358,7 @@ int main(int argc, char **argv)
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 		//C2D_TargetClear(top, C2D_Color32(0x1E, 0x1E, 0x2E, 0xFF));
 		C3D_RenderTargetClear(targetLeft, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
+		C3D_CullFace(GPU_CULL_NONE);
 		C3D_FrameDrawOn(targetLeft);
 		C2D_SceneTarget(targetLeft);
 		//C2D_SceneBegin(top);
