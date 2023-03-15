@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "vshader_shbin.h"
-#include "lenny.h"
+#include "cube.h"
 
 #define CLEAR_COLOR 0x1E1E2EFF
 #define SCREEN_WIDTH  400
@@ -32,7 +32,7 @@ static C3D_LightLut lut_Spec;
 static C3D_AttrInfo vbo_attrInfo;
 static C3D_BufInfo vbo_bufInfo;
 static void* vbo_data;
-static float angleX = 0.0, angleY = 0.0;
+static float angleX = 0.0, angleY = 0.0, angleZ = 0.0;
 
 unsigned long long int clickUpPrice = 15;
 unsigned long long int clickUpOwn = 0;
@@ -55,6 +55,7 @@ bool buy1 = false;
 bool buy2 = false;
 bool controls = true;
 bool DEBUG = false;
+bool gradient = true;
 
 static void scene3dInt(void) {
 	// Load the vertex shader, create a shader program and bind it
@@ -134,6 +135,8 @@ static void scene3dRender(float iod) {
 	Mtx_Identity(&modelView);
 	Mtx_Translate(&modelView, objPos.x, objPos.y, objPos.z, true);
 	Mtx_RotateY(&modelView, C3D_Angle(angleY), true);
+	Mtx_RotateX(&modelView, C3D_Angle(angleX), true);
+	Mtx_RotateZ(&modelView, C3D_Angle(angleZ), true);
 	Mtx_Scale(&modelView, 2.0f, 2.0f, 2.0f);
 
 	C3D_LightPosition(&light, &lightPos);
@@ -156,8 +159,8 @@ static void drawDynamicText(C2D_TextBuf buffer, float x, float y, float scale, u
 	C2D_TextOptimize(&textVar);
 	C2D_DrawText(&textVar, flags | C2D_WithColor, x, y, 0.0f, scale, scale, color);
 }
-static void drawGradientRect(float x, float y, float w, float h, float p, u32 color, int r1, int g1, int b1, int r2, int g2, int b2) {
-	C2D_DrawRectangle(x, y, 0.0f, w, h, C2D_Color32(r1, g1, b1, 0xFF), C2D_Color32((r1*w/(w+h) + r2*h/(w+h)), (g1*w/(w+h) + g2*h/(w+h)), (b1*w/(w+h) + b2*h/(w+h)), 0xFF), C2D_Color32((r1*h/(w+h) + r2*w/(w+h)), (g1*h/(w+h) + g2*w/(w+h)), (b1*h/(w+h) + b2*w/(w+h)), 0xFF), C2D_Color32(r2, g2, b2, 0xFF));
+static void drawGradientRect(float x, float y, float w, float h, float p, u32 color, int r1, int g1, int b1, int r2, int g2, int b2, int opacity) {
+	C2D_DrawRectangle(x, y, 0.0f, w, h, C2D_Color32(r1, g1, b1, opacity), C2D_Color32((r1*w/(w+h) + r2*h/(w+h)), (g1*w/(w+h) + g2*h/(w+h)), (b1*w/(w+h) + b2*h/(w+h)), opacity), C2D_Color32((r1*h/(w+h) + r2*w/(w+h)), (g1*h/(w+h) + g2*w/(w+h)), (b1*h/(w+h) + b2*w/(w+h)), opacity), C2D_Color32(r2, g2, b2, opacity));
 	C2D_DrawRectSolid(x + p, y + p, 0.0f, w - p * 2, h - p * 2, color);
 }
 static void drawRect(float x, float y, float w, float h, float p, u32 color, u32 border) {
@@ -250,6 +253,9 @@ int main(int argc, char **argv)
 			//controls screen switch
 			if (kDown & KEY_X) {
 				if (controls) controls = false; else controls = true;
+			}
+			if (kDown & KEY_Y) {
+				if (gradient) { gradient = false; } else { gradient = true; }
 			}
 			// buy screen switcher
 			if (kDown & KEY_ZR || kDown & KEY_DRIGHT) {
@@ -344,8 +350,9 @@ int main(int argc, char **argv)
 		}
 
 		//rotate
-		angleX += 1.0f/64;
+		angleX += 1.0f/1024;
 		angleY += 1.0f/256;
+		angleZ += 1.0f/512;
 
 		//render scenes
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
@@ -356,28 +363,33 @@ int main(int argc, char **argv)
 		//C2D_SceneBegin(top);
 
 		u32 col = 0xCDD6F4FF;
+		int opacity = 0xEE;
+		if (gradient) {
+			opacity = 0xEE;
+		} else {
+			opacity = 0x00;
+		}
 		//main CPS / CPC display
 		//drawGradientRect(0, 0, 400, 240, 0, C2D_Color32(0x18, 0x18, 0x28, 0x00), 0xA6, 0xE3, 0xA1, 0x89, 0xB4, 0xFA);
 		scene3dRender(-iod);
 		C2D_Prepare();
-		drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87);
+		drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
 		drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
 
 		if (controls) {
-			drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
-			drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Controls:\nA/L/R: Click\nX: Toggle Control Help\nZL/ZR/D-Pad: Switch Shop Page\nStart: Exit");
+			drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
+			drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Controls:\nA/L/R: Click\nX: Toggle Control Help\nZL/ZR/D-Pad: Switch Shop Page\nR+Start: Exit");
 		} else {
 			if (DEBUG) {
-				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
+				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
 			} else {
-				//drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
-				drawRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x99), C2D_Color32(0x18, 0x18, 0x28, 0x00));
+				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
 				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
 			}
 		}
 
-		if (iod > 0.0f) {
+		/*if (iod > 0.0f) {
 			C3D_RenderTargetClear(targetRight, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
 			C3D_FrameDrawOn(targetRight);
 			C2D_SceneTarget(targetRight);
@@ -398,7 +410,7 @@ int main(int argc, char **argv)
 					drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
 				}
 			}
-		}
+		}*/
 
 		//bottom
 		C2D_SceneBegin(bottom);
@@ -407,8 +419,8 @@ int main(int argc, char **argv)
 		//draw the buy buttons
 		//bord: C2D_Color32(0x58, 0x5B, 0x70, 0xFF);
 		//fill: C2D_Color32(0x18, 0x18, 0x25, 0xFF);
-		drawGradientRect(5 , 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87);
-		drawGradientRect(165, 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7);
+		drawGradientRect(5 , 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, 0xFF);
+		drawGradientRect(165, 40, 150, 195, 5, C2D_Color32(0x18, 0x18, 0x25, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, 0xFF);
 
 		if (DEBUG) {
 			drawDynamicText(g_dynBuf, 5.0f, 5.0f, 0.7f, col, font, C2D_AlignLeft, "Frame: %i", frame);
