@@ -3,8 +3,13 @@
 typedef struct
 {
 	float x, y, z;
-	float nx, ny, nz;
 } vertex;
 
-extern const vertex vertex_list[90];
+typedef struct
+{
+	vertex vert;
+	vertex norm;
+} vertexObj;
+
+extern const vertexObj vertex_list[432];
 #define vertex_list_count (sizeof(vertex_list)/sizeof(vertex_list[0]))
