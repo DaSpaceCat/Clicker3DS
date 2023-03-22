@@ -73,12 +73,12 @@ static void scene3dInt(void) {
 	AttrInfo_AddLoader(&vbo_attrInfo, 1, GPU_FLOAT, 3); // v1=normal
 
 	// Create the VBO (vertex buffer object)
-	vbo_data = linearAlloc(sizeof(vertex_list));
-	memcpy(vbo_data, vertex_list, sizeof(vertex_list));
+	vbo_data = linearAlloc(sizeof(toruses));
+	memcpy(vbo_data, toruses, sizeof(toruses));
 
 	// Configure buffers
 	BufInfo_Init(&vbo_bufInfo);
-	BufInfo_Add(&vbo_bufInfo, vbo_data, sizeof(vertex), 2, 0x10);
+	BufInfo_Add(&vbo_bufInfo, vbo_data, sizeof(vertexObj), 2, 0x10);
 
 	static const C3D_Material material =
 		{
@@ -146,7 +146,7 @@ static void scene3dRender(float iod) {
 	C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_modelView,  &modelView);
 
 	// Draw the VBO
-	C3D_DrawArrays(GPU_TRIANGLES, 0, vertex_list_count);
+	C3D_DrawArrays(GPU_TRIANGLES, 0, toruses_list_count);
 }
 static void drawDynamicText(C2D_TextBuf buffer, float x, float y, float scale, u32 color, C2D_Font rfont, u32 flags, const char* text, ...) {
 	char buff[160];
