@@ -2,6 +2,7 @@
 #include <3ds.h>
 #include <citro3d.h>
 #include <citro2d.h>
+// #include <tex3ds.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -32,7 +33,10 @@ static C3D_LightLut lut_Spec;
 static C3D_AttrInfo vbo_attrInfo;
 static C3D_BufInfo vbo_bufInfo;
 static void* vbo_data;
+static void* vbo_2;
 static float angleX = 0.0, angleY = 0.0, angleZ = 0.0;
+
+//static C3D_Tex obj_tex;
 
 unsigned long long int clickUpPrice = 15;
 unsigned long long int clickUpOwn = 0;
@@ -57,6 +61,18 @@ bool controls = true;
 bool DEBUG = false;
 bool gradient = true;
 
+// Helper function for loading a texture from memory
+/*static bool loadTextureFromMem(C3D_Tex* tex, C3D_TexCube* cube, const void* data, size_t size)
+{
+	Tex3DS_Texture t3x = Tex3DS_TextureImport(data, size, tex, cube, false);
+	if (!t3x)
+		return false;
+
+	// Delete the t3x object since we don't need it
+	Tex3DS_TextureFree(t3x);
+	return true;
+}*/
+
 static void scene3dInt(void) {
 	// Load the vertex shader, create a shader program and bind it
 	vshader_dvlb = DVLB_ParseFile((u32*)vshader_shbin, vshader_shbin_size);
@@ -73,12 +89,17 @@ static void scene3dInt(void) {
 	AttrInfo_AddLoader(&vbo_attrInfo, 1, GPU_FLOAT, 3); // v1=normal
 
 	// Create the VBO (vertex buffer object)
-	vbo_data = linearAlloc(sizeof(toruses));
-	memcpy(vbo_data, toruses, sizeof(toruses));
+	vbo_data = linearAlloc(sizeof(pose));
+	memcpy(vbo_data, pose, sizeof(pose));
+
+	/*vbo_2 = linearAlloc(sizeof(vertex_list));
+	memcpy(vbo_2, vertex_list, sizeof(vertex_list));*/
 
 	// Configure buffers
 	BufInfo_Init(&vbo_bufInfo);
 	BufInfo_Add(&vbo_bufInfo, vbo_data, sizeof(vertexObj), 2, 0x10);
+	BufInfo_Add(&vbo_bufInfo, vbo_2, sizeof(vertexObj), 2, 0x10);
+
 
 	static const C3D_Material material =
 		{
@@ -127,7 +148,7 @@ static void scene3dRender(float iod) {
 	// Compute the projection matrix
 	Mtx_PerspStereoTilt(&projection, C3D_AngleFromDegrees(40.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, iod, 2.0f, false);
 
-	C3D_FVec objPos   = FVec4_New(0.0f, 0.0f, -7.0f, 1.0f);
+	C3D_FVec objPos   = FVec4_New(0.0f, -1.0f, -7.0f, 1.0f);
 	C3D_FVec lightPos = FVec4_New(0.0f, 0.0f, -0.5f, 1.0f);
 
 	// Calculate the modelView matrix
@@ -146,7 +167,8 @@ static void scene3dRender(float iod) {
 	C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_modelView,  &modelView);
 
 	// Draw the VBO
-	C3D_DrawArrays(GPU_TRIANGLES, 0, toruses_list_count);
+	C3D_DrawArrays(GPU_TRIANGLES, 0, pose_list_count);
+	//C3D_DrawArrays(GPU_TRIANGLES, 0, vertex_list_count);
 }
 static void drawDynamicText(C2D_TextBuf buffer, float x, float y, float scale, u32 color, C2D_Font rfont, u32 flags, const char* text, ...) {
 	char buff[160];
@@ -350,9 +372,9 @@ int main(int argc, char **argv)
 		}
 
 		//rotate
-		angleX += 1.0f/1024;
-		angleY += 1.0f/256;
-		angleZ += 1.0f/512;
+		//angleX += 1.0f/1024;
+		angleY += 1.0f/1024;
+		//angleZ += 1.0f/512;
 
 		//render scenes
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
@@ -462,6 +484,7 @@ int main(int argc, char **argv)
 
 	// Free the VBO
 	linearFree(vbo_data);
+	linearFree(vbo_2);
 
 	// Free the shader program
 	shaderProgramFree(&program);
