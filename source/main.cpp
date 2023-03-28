@@ -23,7 +23,7 @@ C2D_Font font;
 
 static DVLB_s* vshader_dvlb;
 static shaderProgram_s program;
-static int uLoc_projection, uLoc_modelView;
+static int uLoc_projection, uLoc_modelView/*, uLoc_modelView2*/;
 static C3D_Mtx projection;
 
 static C3D_LightEnv lightEnv;
@@ -33,7 +33,11 @@ static C3D_LightLut lut_Spec;
 static C3D_AttrInfo vbo_attrInfo;
 static C3D_BufInfo vbo_bufInfo;
 static void* vbo_data;
-static void* vbo_2;
+
+/*static C3D_AttrInfo vbo_attrInfo2;
+static C3D_BufInfo vbo_bufInfo2;
+static void* vbo_2;*/
+
 static float angleX = 0.0, angleY = 0.0, angleZ = 0.0;
 
 //static C3D_Tex obj_tex;
@@ -55,6 +59,7 @@ int buyscreen = 1;
 int buytime = 0;
 int buyRepeatDelay = 5;
 int buyScreens = 3;
+float UIZ = 1.0f;
 bool buy1 = false;
 bool buy2 = false;
 bool controls = true;
@@ -88,18 +93,23 @@ static void scene3dInt(void) {
 	AttrInfo_AddLoader(&vbo_attrInfo, 0, GPU_FLOAT, 3); // v0=position
 	AttrInfo_AddLoader(&vbo_attrInfo, 1, GPU_FLOAT, 3); // v1=normal
 
-	// Create the VBO (vertex buffer object)
-	vbo_data = linearAlloc(sizeof(knot));
-	memcpy(vbo_data, knot, sizeof(knot));
+	/*AttrInfo_Init(&vbo_attrInfo2);
+	AttrInfo_AddLoader(&vbo_attrInfo2, 0, GPU_FLOAT, 3); // v0=position
+	AttrInfo_AddLoader(&vbo_attrInfo2, 1, GPU_FLOAT, 3); // v1=normal*/
 
-	/*vbo_2 = linearAlloc(sizeof(vertex_list));
-	memcpy(vbo_2, vertex_list, sizeof(vertex_list));*/
+	// Create the VBO (vertex buffer object)
+	vbo_data = linearAlloc(sizeof(torus));
+	memcpy(vbo_data, torus, sizeof(torus));
+
+	/*vbo_2 = linearAlloc(sizeof(pose));
+	memcpy(vbo_2, pose, sizeof(pose));*/
 
 	// Configure buffers
 	BufInfo_Init(&vbo_bufInfo);
 	BufInfo_Add(&vbo_bufInfo, vbo_data, sizeof(vertexObj), 2, 0x10);
-	BufInfo_Add(&vbo_bufInfo, vbo_2, sizeof(vertexObj), 2, 0x10);
 
+	/*BufInfo_Init(&vbo_bufInfo2);
+	BufInfo_Add(&vbo_bufInfo2, vbo_2, sizeof(vertexObj), 2, 0x10);*/
 
 	static const C3D_Material material =
 		{
@@ -122,6 +132,7 @@ static void scene3dBind(void) {
 	C3D_BindProgram(&program);
 	C3D_SetAttrInfo(&vbo_attrInfo);
 	C3D_SetBufInfo(&vbo_bufInfo);
+	//C3D_SetBufInfo(&vbo_bufInfo2);
 	C3D_LightEnvBind(&lightEnv);
 	C3D_DepthTest(true, GPU_GREATER, GPU_WRITE_ALL);
 	C3D_CullFace(GPU_CULL_BACK_CCW);
@@ -149,6 +160,7 @@ static void scene3dRender(float iod) {
 	Mtx_PerspStereoTilt(&projection, C3D_AngleFromDegrees(40.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, iod, 2.0f, false);
 
 	C3D_FVec objPos   = FVec4_New(0.0f, 0.0f, -7.0f, 1.0f);
+	//C3D_FVec obj2Pos  = FVec4_New(3.0f, 0.0f, -7.0f, 1.0f);
 	C3D_FVec lightPos = FVec4_New(0.0f, 0.0f, -0.5f, 1.0f);
 
 	// Calculate the modelView matrix
@@ -160,15 +172,24 @@ static void scene3dRender(float iod) {
 	Mtx_RotateZ(&modelView, C3D_Angle(angleZ), true);
 	Mtx_Scale(&modelView, 0.75f, 0.75f, 0.75f);
 
+	/*C3D_Mtx modelView2;
+	Mtx_Identity(&modelView2);
+	Mtx_Translate(&modelView2, obj2Pos.x, obj2Pos.y, obj2Pos.z, true);
+	Mtx_RotateY(&modelView2, C3D_Angle(0), true);
+	Mtx_RotateX(&modelView2, C3D_Angle(0), true);
+	Mtx_RotateZ(&modelView2, C3D_Angle(0), true);
+	Mtx_Scale(&modelView2, 0.75f, 0.75f, 0.75f);*/
+
 	C3D_LightPosition(&light, &lightPos);
 
 	// Update the uniforms
 	C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_projection, &projection);
 	C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_modelView,  &modelView);
+	// C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_modelView2, &modelView2);
 
 	// Draw the VBO
-	C3D_DrawArrays(GPU_TRIANGLES, 0, knot_list_count);
-	//C3D_DrawArrays(GPU_TRIANGLES, 0, vertex_list_count);
+	C3D_DrawArrays(GPU_TRIANGLES, 0, torus_list_count);
+	// C3D_DrawArrays(GPU_TRIANGLES, 0, pose_list_count);
 }
 static void drawDynamicText(C2D_TextBuf buffer, float x, float y, float scale, u32 color, C2D_Font rfont, u32 flags, const char* text, ...) {
 	char buff[160];
@@ -179,15 +200,15 @@ static void drawDynamicText(C2D_TextBuf buffer, float x, float y, float scale, u
 	va_end(va);
 	C2D_TextFontParse(&textVar, rfont, buffer, buff);
 	C2D_TextOptimize(&textVar);
-	C2D_DrawText(&textVar, flags | C2D_WithColor, x, y, 0.0f, scale, scale, color);
+	C2D_DrawText(&textVar, flags | C2D_WithColor, x, y, UIZ, scale, scale, color);
 }
 static void drawGradientRect(float x, float y, float w, float h, float p, u32 color, int r1, int g1, int b1, int r2, int g2, int b2, int opacity) {
-	C2D_DrawRectangle(x, y, 0.0f, w, h, C2D_Color32(r1, g1, b1, opacity), C2D_Color32((r1*w/(w+h) + r2*h/(w+h)), (g1*w/(w+h) + g2*h/(w+h)), (b1*w/(w+h) + b2*h/(w+h)), opacity), C2D_Color32((r1*h/(w+h) + r2*w/(w+h)), (g1*h/(w+h) + g2*w/(w+h)), (b1*h/(w+h) + b2*w/(w+h)), opacity), C2D_Color32(r2, g2, b2, opacity));
-	C2D_DrawRectSolid(x + p, y + p, 0.0f, w - p * 2, h - p * 2, color);
+	C2D_DrawRectangle(x, y, UIZ, w, h, C2D_Color32(r1, g1, b1, opacity), C2D_Color32((r1*w/(w+h) + r2*h/(w+h)), (g1*w/(w+h) + g2*h/(w+h)), (b1*w/(w+h) + b2*h/(w+h)), opacity), C2D_Color32((r1*h/(w+h) + r2*w/(w+h)), (g1*h/(w+h) + g2*w/(w+h)), (b1*h/(w+h) + b2*w/(w+h)), opacity), C2D_Color32(r2, g2, b2, opacity));
+	C2D_DrawRectSolid(x + p, y + p, UIZ, w - p * 2, h - p * 2, color);
 }
 static void drawRect(float x, float y, float w, float h, float p, u32 color, u32 border) {
-	C2D_DrawRectSolid(x, y, 0.0f, w, h, border);
-	C2D_DrawRectSolid(x + p, y + p, 0.0f, w - p * 2, h - p * 2, color);
+	C2D_DrawRectSolid(x, y, UIZ, w, h, border);
+	C2D_DrawRectSolid(x + p, y + p, UIZ, w - p * 2, h - p * 2, color);
 }
 
 int main(int argc, char **argv)
@@ -271,6 +292,9 @@ int main(int argc, char **argv)
 			if (kDown & KEY_Y) { CPC *= 2; clickerUown *= 2; clickerown *= 2; }
 			//speedy click button
 			if (kHeld & KEY_R) { clicks += CPC; }
+			// change z index of 2d elements?
+			if (kDown & KEY_DUP) { UIZ += 0.1f; }
+			if (kDown & KEY_DDOWN) { UIZ -= 0.1f; }
 		} else {
 			//controls screen switch
 			if (kDown & KEY_X) {
@@ -395,20 +419,22 @@ int main(int argc, char **argv)
 		//main CPS / CPC display
 		//drawGradientRect(0, 0, 400, 240, 0, C2D_Color32(0x18, 0x18, 0x28, 0x00), 0xA6, 0xE3, 0xA1, 0x89, 0xB4, 0xFA);
 		scene3dRender(-iod);
-		C2D_Prepare();
-		drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
-		drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
+		if (iod <= 0.0f) {
+			C2D_Prepare();
+			drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
+			drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
 
-		if (controls) {
-			drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
-			drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Controls:\nA/L/R: Click\nX: Toggle Control Help\nZL/ZR/D-Pad: Switch Shop Page\nR+Start: Exit");
-		} else {
-			if (DEBUG) {
+			if (controls) {
 				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
-				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
+				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Controls:\nA/L/R: Click\nX: Toggle Control Help\nZL/ZR/D-Pad: Switch Shop Page\nR+Start: Exit");
 			} else {
-				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
-				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
+				if (DEBUG) {
+					drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
+					drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
+				} else {
+					drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0x55), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
+					drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
+				}
 			}
 		}
 
@@ -416,29 +442,13 @@ int main(int argc, char **argv)
 			C3D_RenderTargetClear(targetRight, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
 			C3D_FrameDrawOn(targetRight);
 			C2D_SceneTarget(targetRight);
-			C2D_Prepare();
 			scene3dRender(iod);
-
-			drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
-			drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
-
-			if (controls) {
-				drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
-				drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Controls:\nA/L/R: Click\nX: Toggle Control Help\nZL/ZR/D-Pad: Switch Shop Page\nStart: Exit");
-			} else {
-				if (DEBUG) {
-					drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
-					drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Add Clickers: A\nAdd Clicker Multi: B\nAdd CPC: X\nMult values by 2: Y\nFast Click: R");
-				} else {
-					drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
-					drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
-				}
-			}
 		}
 
 		//bottom
 		C2D_SceneBegin(bottom);
 		C2D_TargetClear(bottom, C2D_Color32(0x1E, 0x1E, 0x2E, 0xFF));
+		C2D_Prepare();
 
 		//draw the buy buttons
 		//bord: C2D_Color32(0x58, 0x5B, 0x70, 0xFF);
@@ -466,9 +476,8 @@ int main(int argc, char **argv)
 				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%llu CPS\nPrice: %llu\nPrice+: 25\nOwned: %llu", clickerUown, clickerprice, clickerown);
 				break;
 			case 3:
-				//C3D_GetDrawingTime and C3D_GetCmdBufUsage
 				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "DEBUG INFO");
-				drawDynamicText(g_dynBuf, 15.0f, 50.0f, 0.9f, col, font, C2D_AlignLeft, "GPU Draw Time:\n%f", C3D_GetDrawingTime());
+				drawDynamicText(g_dynBuf, 15.0f, 50.0f, 0.9f, col, font, C2D_AlignLeft, "GPU Draw Time:\n%f\nCurrent 2D\nZ Index:\n%f", C3D_GetDrawingTime(), UIZ);
 				drawDynamicText(g_dynBuf, 175.0f, 50.0f, 0.9f, col, font, C2D_AlignLeft, "CmdBuf Usage:\n%f", C3D_GetCmdBufUsage());
 				break;
 		}
@@ -486,7 +495,7 @@ int main(int argc, char **argv)
 
 	// Free the VBO
 	linearFree(vbo_data);
-	linearFree(vbo_2);
+	//linearFree(vbo_2);
 
 	// Free the shader program
 	shaderProgramFree(&program);
