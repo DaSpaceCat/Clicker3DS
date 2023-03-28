@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 		if (kHeld & KEY_START && kHeld & KEY_R) break; // break in order to return to hbmenu
 
 		if (kDown & KEY_SELECT) {
-			if (DEBUG) { DEBUG = false; } else { DEBUG = true; controls = false;}
+			if (DEBUG) { DEBUG = false;  buyscreen = buyScreens-1; } else { DEBUG = true; controls = false;}
 		}
 
 		//Read the touch screen coordinates and add them to a variable
@@ -282,14 +282,14 @@ int main(int argc, char **argv)
 			// buy screen switcher
 			if (kDown & KEY_ZR || kDown & KEY_DRIGHT) {
 				buyscreen += 1;
-				if (buyscreen > buyScreens) {
+				if (buyscreen > buyScreens-1) {
 					buyscreen = 1;
 				}
 			}
 			if (kDown & KEY_ZL || kDown & KEY_DLEFT) {
 				buyscreen -= 1;
 				if (buyscreen < 1) {
-					buyscreen = buyScreens;
+					buyscreen = buyScreens-1;
 				}
 			}
 
@@ -386,9 +386,9 @@ int main(int argc, char **argv)
 		//C2D_SceneBegin(top);
 
 		u32 col = 0xCDD6F4FF;
-		int opacity = 0xEE;
+		int opacity = 0x88;
 		if (gradient) {
-			opacity = 0xEE;
+			opacity = 0x88;
 		} else {
 			opacity = 0x00;
 		}
@@ -412,13 +412,13 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (iod > 0.0f) {
+		/*if (iod > 0.0f) {
 			C3D_RenderTargetClear(targetRight, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
 			C3D_FrameDrawOn(targetRight);
 			C2D_SceneTarget(targetRight);
 			scene3dRender(iod);
 
-			drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
+			/*drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
 			drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
 
 			if (controls) {
@@ -432,8 +432,8 @@ int main(int argc, char **argv)
 					drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
 					drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
 				}
-			}
-		}
+			} //
+		}*/
 
 		//bottom
 		C2D_SceneBegin(bottom);
@@ -465,9 +465,10 @@ int main(int argc, char **argv)
 				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "Clicker\n+%llu CPS\nPrice: %llu\nPrice+: 25\nOwned: %llu", clickerUown, clickerprice, clickerown);
 				break;
 			case 3:
-				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "Shop p.3");
-				drawDynamicText(g_dynBuf, 80.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "shhh");
-				drawDynamicText(g_dynBuf, 240.0f, 50.0f, 0.9f, col, font, C2D_AlignCenter, "it's a secret");
+				//C3D_GetDrawingTime and C3D_GetCmdBufUsage
+				drawDynamicText(g_dynBuf, 160.0f, 5.0f, 1.0f, col, font, C2D_AlignCenter, "DEBUG INFO");
+				drawDynamicText(g_dynBuf, 15.0f, 50.0f, 0.9f, col, font, C2D_AlignLeft, "GPU Draw Time:\n%f", C3D_GetDrawingTime());
+				drawDynamicText(g_dynBuf, 175.0f, 50.0f, 0.9f, col, font, C2D_AlignLeft, "CmdBuf Usage:\n%f", C3D_GetCmdBufUsage());
 				break;
 		}
 
