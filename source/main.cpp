@@ -412,13 +412,14 @@ int main(int argc, char **argv)
 			}
 		}
 
-		/*if (iod > 0.0f) {
+		if (iod > 0.0f) {
 			C3D_RenderTargetClear(targetRight, C3D_CLEAR_ALL, CLEAR_COLOR, 0);
 			C3D_FrameDrawOn(targetRight);
 			C2D_SceneTarget(targetRight);
+			C2D_Prepare();
 			scene3dRender(iod);
 
-			/*drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
+			drawGradientRect(10, 10, 380, 80, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xF5, 0xC2, 0xE7, 0xFA, 0xB3, 0x87, opacity);
 			drawDynamicText(g_dynBuf, 20.0f, 15.0f, 1.0f, col, font, C2D_AlignLeft, "Clicks.: %llu\nCPS....: %llu\nCPC....: %llu", clicks, CPS, CPC);
 
 			if (controls) {
@@ -432,8 +433,8 @@ int main(int argc, char **argv)
 					drawGradientRect(10, 100, 320, 120, 5, C2D_Color32(0x18, 0x18, 0x28, 0xEE), 0xFA, 0xB3, 0x87, 0xF5, 0xC2, 0xE7, opacity);
 					drawDynamicText(g_dynBuf, 20.0f, 105.0f, 1.0f, col, font, C2D_AlignLeft, "Misc:\nBuy Cooldown: %i\nBuy Repeat Delay: %i", buytime, buyRepeatDelay);
 				}
-			} //
-		}*/
+			}
+		}
 
 		//bottom
 		C2D_SceneBegin(bottom);
